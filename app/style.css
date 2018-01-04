@@ -2,11 +2,14 @@ html {
   box-sizing: border-box;
 }
 
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: inherit;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -18,18 +21,22 @@ body {
   position: absolute;
 }
 
-body, input {
+body,
+input {
   font: menu;
 }
 
-textarea, input, div, button {
+textarea,
+input,
+div,
+button {
   margin: 0;
   outline: none;
 }
 
 .controls {
   background-color: rgb(217, 241, 238);
-  padding: 10px 10px 10px 10px;
+  padding: 10px;
 }
 
 button {
@@ -60,11 +67,12 @@ button:disabled {
 }
 
 .content {
-  height: 100vh;
+  height: calc(100% - 51px);
   display: flex; /* E */
 }
 
-.raw-markdown, .rendered-html {
+.raw-markdown,
+.rendered-html {
   min-height: 100%;
   max-width: 50%;
   flex-grow: 1; /* F */
@@ -74,7 +82,7 @@ button:disabled {
 }
 
 .raw-markdown {
-  border: 5px solid rgb(238, 252, 250);;
+  border: 5px solid rgb(238, 252, 250);
   background-color: rgb(238, 252, 250);
   font-family: monospace;
 }
@@ -85,6 +93,6 @@ button:disabled {
 }
 
 .raw-markdown.drag-error {
-  background-color: rgba(170, 57, 57,1);
-  border-color: rgba(255,170,170,1);
+  background-color: rgba(170, 57, 57, 1);
+  border-color: rgba(255, 170, 170, 1);
 }

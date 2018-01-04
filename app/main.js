@@ -14,7 +14,9 @@ app.on('ready', () => {
     height: mainWindowState.height,
     width: mainWindowState.width,
     x: mainWindowState.x,
-    y: mainWindowState.y
+    y: mainWindowState.y,
+    minWidth: 600,
+    minHeight: 400
   });
 
   mainWindowState.manage(mainWindow);
