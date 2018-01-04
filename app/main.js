@@ -1,9 +1,23 @@
 const { app, BrowserWindow } = require('electron');
+const windowStateManager = require('electron-window-state');
 
 let mainWindow = null;
 
 app.on('ready', () => {
-  mainWindow = new BrowserWindow({ show: false });
+  const mainWindowState = windowStateManager({
+    defaultHeight: 600,
+    defaultWidth: 800
+  });
+
+  mainWindow = new BrowserWindow({
+    show: false,
+    height: mainWindowState.height,
+    width: mainWindowState.width,
+    x: mainWindowState.x,
+    y: mainWindowState.y
+  });
+
+  mainWindowState.manage(mainWindow);
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 

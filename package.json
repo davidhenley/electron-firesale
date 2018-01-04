@@ -11,6 +11,7 @@
     "devtron": "^1.4.0",
     "electron": "^1.4.6",
     "electron-packager": "^8.2.0",
+    "electron-window-state": "^4.1.1",
     "eslint": "^3.10.0"
   },
   "scripts": {
