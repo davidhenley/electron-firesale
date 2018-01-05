@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const windows = new Set();
 
-const createWindow = () => {
+const createWindow = filePath => {
   const winState = windowStateManager({
     defaultHeight: 600,
     defaultWidth: 800
@@ -28,6 +28,7 @@ const createWindow = () => {
 
   newWindow.once('ready-to-show', () => {
     newWindow.show();
+    if (filePath) openFile(newWindow, filePath);
   });
 
   newWindow.on('close', e => {
@@ -70,11 +71,18 @@ const openFile = (targetWindow, filePath) => {
   const content = fs.readFileSync(file).toString();
 
   targetWindow.webContents.send('file-opened', { file, content });
-  targetWindow.setTitle(`${file} - Fire Sale`);
   targetWindow.setRepresentedFilename(file);
+
+  app.addRecentDocument(file);
 };
 
-app.on('ready', createWindow);
+app.on('will-finish-launching', () => {
+  app.on('open-file', (e, filePath) => {
+    createWindow(filePath);
+  });
+});
+
+app.on('ready', () => createWindow());
 
 app.on('window-all-closed', () => {
   windows.clear();
