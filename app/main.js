@@ -2,47 +2,71 @@ const { app, BrowserWindow, dialog } = require('electron');
 const windowStateManager = require('electron-window-state');
 const fs = require('fs');
 
-let mainWindow = null;
+const windows = new Set();
 
-app.on('ready', () => {
-  const mainWindowState = windowStateManager({
+const createWindow = () => {
+  const winState = windowStateManager({
     defaultHeight: 600,
     defaultWidth: 800
   });
 
-  mainWindow = new BrowserWindow({
+  let newWindow = new BrowserWindow({
     show: false,
-    height: mainWindowState.height,
-    width: mainWindowState.width,
-    x: mainWindowState.x,
-    y: mainWindowState.y,
+    height: !windows.size ? winState.height : winState.defaultHeight,
+    width: !windows.size ? winState.width : winState.defaultWidth,
+    x: winState.x,
+    y: winState.y,
     minWidth: 600,
     minHeight: 400
   });
 
-  mainWindowState.manage(mainWindow);
+  windows.add(newWindow);
 
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  winState.manage(newWindow);
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
+  newWindow.loadURL(`file://${__dirname}/index.html`);
+
+  newWindow.once('ready-to-show', () => {
+    newWindow.show();
   });
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+  newWindow.on('closed', () => {
+    windows.delete(newWindow);
   });
-});
+};
 
-const getFileFromUserSelection = (exports.getFileFromUserSelection = () => {
-  const files = dialog.showOpenDialog(mainWindow, {
+const getFileFromUserSelection = targetWindow => {
+  const files = dialog.showOpenDialog(targetWindow, {
     properties: ['openFile'],
     filters: [{ name: 'Text Files', extensions: ['txt'] }]
   });
 
   if (!files) return;
 
-  const file = files[0];
+  return files[0];
+};
+
+const openFile = (targetWindow, filePath) => {
+  const file = filePath || getFileFromUserSelection(targetWindow);
+
   const content = fs.readFileSync(file).toString();
 
-  mainWindow.webContents.send('file-opened', { file, content });
+  targetWindow.webContents.send('file-opened', { file, content });
+};
+
+app.on('ready', createWindow);
+
+app.on('window-all-closed', () => {
+  windows.clear();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
+
+app.on('activate', () => {
+  if (!windows.size) {
+    createWindow();
+  }
+});
+
+module.exports = { openFile, createWindow };
