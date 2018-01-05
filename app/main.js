@@ -52,6 +52,8 @@ const openFile = (targetWindow, filePath) => {
   const content = fs.readFileSync(file).toString();
 
   targetWindow.webContents.send('file-opened', { file, content });
+  targetWindow.setTitle(`${file} - Fire Sale`);
+  targetWindow.setRepresentedFilename(file);
 };
 
 app.on('ready', createWindow);
