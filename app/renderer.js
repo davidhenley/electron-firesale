@@ -59,7 +59,17 @@ saveHtmlButton.addEventListener('click', () => {
   mainProcess.saveHtml(currentWindow, htmlView.innerHTML);
 });
 
-ipcRenderer.on('file-opened', (_, { file, content }) => {
+ipcRenderer.on('file-opened', (event, { file, content }) => {
+  filePath = file;
+  originalContent = content;
+
+  markdownView.value = content;
+  renderMarkdownToHtml(content);
+
+  updateEditedState(false);
+});
+
+ipcRenderer.on('file-changed', (event, { file, content }) => {
   filePath = file;
   originalContent = content;
 

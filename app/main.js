@@ -3,6 +3,7 @@ const windowStateManager = require('electron-window-state');
 const fs = require('fs');
 
 const windows = new Set();
+const fileWatchers = new Map();
 
 const createWindow = filePath => {
   const winState = windowStateManager({
@@ -51,6 +52,8 @@ const createWindow = filePath => {
 
   newWindow.on('closed', () => {
     windows.delete(newWindow);
+    stopWatchingFile(newWindow);
+    newWindow = null;
   });
 };
 
@@ -74,6 +77,7 @@ const openFile = (targetWindow, filePath) => {
   targetWindow.setRepresentedFilename(file);
 
   app.addRecentDocument(file);
+  startWatchingFile(targetWindow, file);
 };
 
 const saveMarkdown = (targetWindow, file, content) => {
@@ -101,6 +105,26 @@ const saveHtml = (targetWindow, content) => {
   if (!file) return;
 
   fs.writeFileSync(file, content);
+};
+
+const startWatchingFile = (targetWindow, file) => {
+  stopWatchingFile(targetWindow);
+
+  const watcher = fs.watch(file, e => {
+    if (e === 'change') {
+      const content = fs.readFileSync(file).toString();
+      targetWindow.webContents.send('file-changed', { file, content });
+    }
+  });
+
+  fileWatchers.set(targetWindow, watcher);
+};
+
+const stopWatchingFile = targetWindow => {
+  if (fileWatchers.has(targetWindow)) {
+    fileWatchers.get(targetWindow).close();
+    fileWatchers.delete(targetWindow);
+  }
 };
 
 app.on('will-finish-launching', () => {
